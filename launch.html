@@ -76,12 +76,14 @@
 				var filename = 'model/lowpolytree.fbx';
 				loader.load(filename, function (object) {
 
+					console.log('object:', object);
+
 					mixer = new THREE.AnimationMixer( object );
 					console.log('mixer:', mixer);
 
-					var action = mixer.clipAction( object.animations[ 0 ] );
-					console.log('action:', action);
-					action.play();
+					// var action = mixer.clipAction( object.animations[ 0 ] );
+					// console.log('action:', action);
+					// action.play();
 
 					object.traverse( function ( child ) {
 
