@@ -62,7 +62,7 @@ import {
 	Vector4,
 	VectorKeyframeTrack,
 	VertexColors
-} from "./build/three.module.js";
+} from "./three.module.js";
 import { Zlib } from "./inflate.module.min.js";
 import { TGALoader } from "./TGALoader.js";
 import { NURBSCurve } from "./NURBSCurve.js";
