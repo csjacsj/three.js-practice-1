@@ -62,10 +62,10 @@ import {
 	Vector4,
 	VectorKeyframeTrack,
 	VertexColors
-} from "../../../build/three.module.js";
-import { Zlib } from "../libs/inflate.module.min.js";
-import { TGALoader } from "../loaders/TGALoader.js";
-import { NURBSCurve } from "../curves/NURBSCurve.js";
+} from "./build/three.module.js";
+import { Zlib } from "./inflate.module.min.js";
+import { TGALoader } from "./TGALoader.js";
+import { NURBSCurve } from "./NURBSCurve.js";
 
 
 var FBXLoader = ( function () {
