@@ -5,12 +5,12 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
+		<script src="js/Coordinates.js"></script>
 	</head>
 
 	<body>
 		<div id="info">
-			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - FBXLoader<br />
-			Character and animation from <a href="https://www.mixamo.com/" target="_blank" rel="noopener">Mixamo</a>
+			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - FBXLoader
 		</div>
 
 		<script type="module">
@@ -25,6 +25,8 @@
 			var container, stats, controls;
 			var camera, scene, renderer, light;
 
+			window.THREE = THREE;
+
 			var clock = new THREE.Clock();
 
 			var mixer;
@@ -37,25 +39,32 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 20000 );
 				camera.position.set( 100, 200, 300 );
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xa0a0a0 );
-				scene.fog = new THREE.Fog( 0xa0a0a0, 200, 1000 );
+				// scene.fog = new THREE.Fog( 0xa0a0a0, 200, 1000 );
 
-				light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+				window.scene = scene;
+
+				light = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.2 );
 				light.position.set( 0, 200, 0 );
-				scene.add( light );
+				// scene.add( light );s
 
-				light = new THREE.DirectionalLight( 0xffffff );
-				light.position.set( 0, 200, 100 );
+				// light = new THREE.DirectionalLight( 0xffffff );
+				light = new THREE.DirectionalLight( 0x00ff00 );
+				light.position.set( 0, 400, 200 );
 				light.castShadow = true;
-				light.shadow.camera.top = 180;
-				light.shadow.camera.bottom = - 100;
-				light.shadow.camera.left = - 120;
-				light.shadow.camera.right = 120;
+				light.shadow.mapSize.width = 1024;
+				light.shadow.mapSize.height = 1024;
+				light.shadow.camera.top = 600;
+				light.shadow.camera.bottom = - 600;
+				light.shadow.camera.left = - 600;
+				light.shadow.camera.right = 600;
+				light.shadow.camera.far = 1024;
 				scene.add( light );
+				window.mylight = light;
 
 				// scene.add( new CameraHelper( light.shadow.camera ) );
 
@@ -65,15 +74,18 @@
 				mesh.receiveShadow = true;
 				scene.add( mesh );
 
-				var grid = new THREE.GridHelper( 2000, 20, 0x000000, 0x000000 );
+				var grid = new THREE.GridHelper( 2000, 20, 0xFF0000, 0x000000 );
 				grid.material.opacity = 0.2;
 				grid.material.transparent = true;
 				scene.add( grid );
+
+				Coordinates.drawAllAxes({axisLength:200,axisRadius:1,axisTess:50});
 
 				// model
 				var loader = new FBXLoader();
 				// var filename = 'model/Samba Dancing.fbx';
 				var filename = 'model/lowpolytree.fbx';
+				// var filename = 'model/tree.fbx';
 				loader.load(filename, function (object) {
 
 					console.log('object:', object);
@@ -81,9 +93,13 @@
 					mixer = new THREE.AnimationMixer( object );
 					console.log('mixer:', mixer);
 
-					// var action = mixer.clipAction( object.animations[ 0 ] );
-					// console.log('action:', action);
-					// action.play();
+					try {
+						var action = mixer.clipAction( object.animations[ 0 ] );
+						console.log('action:', action);
+						action.play();
+					} catch (error) {
+						console.log('error:', error);
+					}
 
 					object.traverse( function ( child ) {
 
@@ -92,11 +108,69 @@
 							child.castShadow = true;
 							child.receiveShadow = true;
 
+							window.mychild = child;
+
+							try {
+								console.log('trying to compute bounding box');
+								child.geometry.computeBoundingBox();
+							} catch (error) {
+								console.log('error:', error);
+							}
+							
+
+							// console.log('setting child rotation...');
+							// child.rotation.x = 0;
+							// child.rotation.x = -1.57;
+							// // child.position.z = 600;
+							// child.position.y = 190.2;
+							// child.position.x = 0;
+							// child.position.z = 0;
+							// child.scale.x = 10;
+							// child.scale.y = 10;
+							// child.scale.z = 10;
+							console.log('child.scale:', child.scale);
+							console.log('child.rotation:', child.rotation);
+							console.log('child.position:', child.position);
+
+							try {
+								// MATERIAL
+								let material = new THREE.MeshLambertMaterial( { color: 0x80fc66, reflectivity: 0.4 } );
+								// var ka = 0.4;
+								// material.ambient.setRGB( material.color.r * ka, material.color.g * ka, material.color.b * ka );
+								// child.material = material;
+							} catch (error) {
+								console.log('error when assigning material for child:', error);
+							}
+
 						}
 
 					} );
 
 					scene.add( object );
+					window.myobj = object;
+					object.position.y = 190.2;
+					setTimeout(() => {
+						
+					}, 666);
+
+					let makeCube = (color) => {
+						let geometry = new THREE.BoxGeometry( 10, 10, 10 );
+						let material = new THREE.MeshBasicMaterial( { color } );
+						let cube = new THREE.Mesh( geometry, material );
+						return cube;
+					};
+
+					let cube = makeCube(0xff0000);
+					cube.position.x = 100;
+					scene.add( cube );
+
+					cube = makeCube(0x00ff00);
+					cube.position.y = 100;
+					scene.add( cube );
+
+					cube = makeCube(0x0000ff);
+					cube.position.z = 100;
+					scene.add( cube );
 
 				} );
 
